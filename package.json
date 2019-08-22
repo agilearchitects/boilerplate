@@ -1,0 +1,40 @@
+{
+   "scripts": {
+      "watch": "tsc --watch",
+      "render": "node build/render.js"
+   },
+   "dependencies": {
+      "axios": "^0.19.0",
+      "bcrypt": "^3.0.6",
+      "express": "^4.17.1",
+      "jsonwebtoken": "^8.5.1",
+      "logform": "^2.1.2",
+      "mailgun-js": "^0.22.0",
+      "moment": "^2.24.0",
+      "mysql": "^2.14.1",
+      "reflect-metadata": "^0.1.10",
+      "simplyserveme": "^4.3.4",
+      "typeorm": "0.2.18",
+      "winston": "^3.2.1",
+      "yargs": "^14.0.0"
+   },
+   "devDependencies": {
+      "@types/axios": "^0.14.0",
+      "@types/bcrypt": "^3.0.0",
+      "@types/change-case": "^2.3.1",
+      "@types/ejs": "^2.6.3",
+      "@types/express": "^4.17.0",
+      "@types/jsonwebtoken": "^8.3.3",
+      "@types/logform": "^1.2.0",
+      "@types/mailgun-js": "^0.22.3",
+      "@types/moment": "^2.13.0",
+      "@types/node": "^8.0.29",
+      "@types/winston": "^2.4.4",
+      "@types/yargs": "^13.0.2",
+      "change-case": "^3.1.0",
+      "ejs": "^2.6.2",
+      "ts-node": "3.3.0",
+      "tslint": "^5.19.0",
+      "typescript": "3.3.3333"
+   }
+}

@@ -1,0 +1,16 @@
+{
+  "email": {
+    "defaultFrom": "noreply@boilerplate.se"
+  },
+  "log": {
+    "logPath": "./log",
+    "outputToConsole": true,
+    "dateFormat": "YYYY-MM-DD HH:mm:ss"
+  },
+  "recaptcha": {
+    "url": "https://www.google.com/recaptcha/api/siteverify"
+  },
+  "mailgun": {
+    "host": "api.eu.mailgun.net"
+  }
+}

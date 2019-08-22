@@ -1,0 +1,21 @@
+export interface I<%= changeCase.pascalCase(name) %>DTO {
+  id: number;
+}
+
+export class <%= changeCase.pascalCase(name) %>DTO {
+  public static parse(<%= changeCase.camelCase(name) %>: I<%= changeCase.pascalCase(name) %>DTO): <%= changeCase.pascalCase(name) %>DTO {
+    return new this(
+      <%= changeCase.camelCase(name) %>.id,
+    );
+  }
+
+  public constructor(
+    public readonly id: number,
+  ) { }
+
+  public serialize(): I<%= changeCase.pascalCase(name) %>DTO {
+    return {
+      id: this.id,
+    };
+  }
+}

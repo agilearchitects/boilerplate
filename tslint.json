@@ -1,0 +1,22 @@
+{
+    "defaultSeverity": "error",
+    "jsRules": {},
+    "rules": {
+        "no-trailing-whitespace": true,
+        "prefer-const": true,
+        "semicolon": true,
+        "quotemark": [true, "double"],
+        "ordered-imports": true,
+        "no-console": true,
+        "max-classes-per-file": [true, 1],
+        "max-line-length": [true, 255],
+        "only-arrow-functions": true,
+        "whitespace": [true, "check-decl", "check-operator", "check-module", "check-rest-spread", "check-type", "check-type-operator", "check-type-operator", "check-preblock"],
+        "trailing-comma": true,
+        "indent": [true, "spaces", 2],
+        "interface-name": true,
+        "class-name": true,
+        "typedef": true
+    },
+    "rulesDirectory": []
+}
