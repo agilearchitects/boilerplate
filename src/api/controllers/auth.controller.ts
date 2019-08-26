@@ -1,8 +1,10 @@
 // Libs
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { ILoginDTO } from "../../dto/login.dto";
+import { IPasswordResetDTO } from "../../dto/password-reset.dto";
 import { IRefreshTokenDTO } from "../../dto/refresh-token.dto";
 import { IRegisterDTO } from "../../dto/register.dto";
+import { IRequestPasswordResetDTO } from "../../dto/request-password-reset.dto";
 import { LogModule } from "../modules/log.module";
 import { IRequest } from "../routes";
 import { AuthService, authService as authServiceInstance, loginPayload } from "../services/auth.service";
@@ -45,17 +47,28 @@ export class AuthController {
     });
   }
 
-  public requestResetPassword(request: Request, response: Response, next: NextFunction) {
-
+  public async requestPasswordReset(request: IRequest<IRequestPasswordResetDTO>, response: Response, next: NextFunction) {
+    const requestPasswordReset: IRequestPasswordResetDTO = request.body;
+    try {
+      await this.authService.requestResetPassword(requestPasswordReset.email);
+    } finally {
+      response.sendStatus(200);
+    }
   }
 
-  public resetPassword(request: Request, response: Response, next: NextFunction) {
-
+  public passwordReset(request: IRequest<IPasswordResetDTO>, response: Response, next: NextFunction) {
+    const passwordReset: IPasswordResetDTO = request.body;
+    try {
+      this.authService.resetPassword(passwordReset.token, passwordReset.password);
+      response.sendStatus(200);
+    } catch {
+      response.sendStatus(500);
+    }
   }
 
   public register(request: IRequest<IRegisterDTO>, response: Response, next: NextFunction) {
-    const registerData = request.body;
-    this.authService.register(registerData.email, registerData.password).then(() =>
+    const register: IRegisterDTO = request.body;
+    this.authService.register(register.email, register.password).then(() =>
       response.sendStatus(200)
     ).catch(() =>
       response.sendStatus(400)

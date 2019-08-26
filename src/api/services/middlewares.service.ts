@@ -7,14 +7,16 @@ import { LogModule } from "../modules/log.module";
 
 // Services
 import { UserDTO } from "../../dto/user.dto";
-import { IResponse } from "../routes";
+import { IRequest, IResponse } from "../routes";
 import { AuthService, authService as authServiceInstance } from "./auth.service";
+import { EnvService, envService as envServiceInstance } from "./env.service";
 import { ReCaptchaService, reCaptchaService as reCaptchaServiceInstance } from "./re-captcha.service";
 
 export class MiddlewareService {
   public constructor(
     private readonly authService: AuthService = authServiceInstance,
     private readonly reCaptchaService: ReCaptchaService = reCaptchaServiceInstance,
+    private readonly envService: EnvService = envServiceInstance,
     private readonly errorModule: typeof Error = Error,
     private readonly log: LogModule = new LogModule("Middleware"),
   ) { }
@@ -41,15 +43,23 @@ export class MiddlewareService {
   }
 
   /**
-   * Validates token against auth service
+   * Tries to validate token agains environment token.
+   * Will only work in local env.
    */
-  public token(request: Request, response: Response, next: NextFunction) {
-    if(this.authService.validateToken(request.query.token)) {
+  public simpleToken(request: IRequest<any, any, { token: string }>, response: Response, next: NextFunction) {
+    // Make sure to use random token to not resolve true if no token is present
+    if(this.envService.get("ENV", "") === "local" && this.envService.get("TOKEN", Math.random().toString()) === request.query.token) {
       next();
     } else {
-      this.insertLog("token", "Token validation failed", request.headers);
       response.sendStatus(403);
     }
+  }
+
+  public verifyJWTToken(request: IRequest<{ token: string }, any, { token: string }>, response: Response, next: NextFunction) {
+    const token: string = request.method === "GET" ? request.query.token : request.body.token;
+    this.authService.verifyToken(token).then(() => {
+      next();
+    }).catch(() => response.sendStatus(403));
   }
 
   /**
@@ -63,6 +73,20 @@ export class MiddlewareService {
         this.insertLog("reCaptchaToken", "Validation for recpatcha failed", request.headers);
         response.sendStatus(403);
       });
+  }
+
+  public checkTokenBan(request: IRequest<{ token: string }, any, { token: string }>, response: Response, next: NextFunction) {
+    const token: string = request.method === "GET" ? request.query.token : request.body.token;
+    this.authService.isTokenBanned(token).then((isBanned: boolean) => {
+      if(isBanned) {
+        next();
+      } else {
+        response.sendStatus(403);
+      }
+    }).catch(() => {
+      this.insertLog("checkTokenBan", "Failed to check token ban", request.headers);
+      response.sendStatus(500);
+    });
   }
 
   /**

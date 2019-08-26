@@ -19,17 +19,29 @@ export class UserService {
   /**
    * Getting user by id
    * @param id Id to search for
+   * @param isActive Get only active users (true), inactive users (false) or all users (null)
+   * @param isBanned Get only banned users (true), unbanned users (false) or all users (null)
    */
-  public async getUserById(id: number): Promise<IUserModel> {
-    return this.getUserBy(id, true, false);
+  public async getUserById(
+    id: number,
+    isActive: boolean | null = true,
+    isBanned: boolean | null = false,
+  ): Promise<IUserModel> {
+    return this.getUserBy(id, isActive, isBanned);
   }
 
   /**
    * Getting user by email
    * @param email Email to search for
+   * @param isActive Get only active users (true), inactive users (false) or all users (null)
+   * @param isBanned Get only banned users (true), unbanned users (false) or all users (null)
    */
-  public async getUserByEmail(email: string): Promise<IUserModel> {
-    return this.getUserBy(email, true, false);
+  public async getUserByEmail(
+    email: string,
+    isActive: boolean | null = true,
+    isBanned: boolean | null = false,
+  ): Promise<IUserModel> {
+    return this.getUserBy(email, isActive, isBanned);
   }
 
   /**
@@ -58,7 +70,7 @@ export class UserService {
       // If no user was found
       if(user === undefined) {
         const error = new this.errorModule(`Unable to find user by ${type === "id" ? "id" : "email"}`);
-        this.log.info({ title: `getUserBy${type === "id" ? "Id" : "Email"}`, message: error.message });
+        this.logError(`getUserBy${type === "id" ? "Id" : "Email"}`, error);
         throw error;
       }
 
@@ -72,7 +84,7 @@ export class UserService {
       };
     // Throw error if fail
     } catch(error) {
-      this.log.error({ title: `getUserBy${type === "id" ? "Id" : "Email"}`, message: "Something went wrong" }, error);
+      this.logError(`getUserBy${type === "id" ? "Id" : "Email"}`, error);
       throw error;
     }
   }
@@ -85,12 +97,14 @@ export class UserService {
         email: user.email,
       });
     } catch(error) {
-      this.log.error({ title: "create", message: "Something went wrong" }, error);
+      this.logError("create", error);
       throw error;
     }
   }
 
-  public async activateUser(email: string): Promise<void> {
+  public async activateUser(email: number): Promise<void>;
+  public async activateUser(id: number): Promise<void>;
+  public async activateUser(email: string | number): Promise<void> {
     try {
       // Get none active user (not banned)
       const user = await this.getUserBy(email, false, false);
@@ -103,7 +117,9 @@ export class UserService {
     }
   }
 
-  public async deActivateUser(email: string): Promise<void> {
+  public async deActivateUser(email: string): Promise<void>;
+  public async deActivateUser(id: number): Promise<void>;
+  public async deActivateUser(email: string | number): Promise<void> {
     try {
       // Get none active user (not banned)
       const user = await this.getUserBy(email, false, false);
@@ -111,12 +127,14 @@ export class UserService {
       await this.userModel.update(user.id, { active: null });
       return;
     } catch(error) {
-      this.logError("activateUser", error);
+      this.logError("deActivateUser", error);
       throw(error);
     }
   }
 
-  public async banUser(email: string): Promise<void> {
+  public async banUser(email: string): Promise<void>;
+  public async banUser(id: number): Promise<void>;
+  public async banUser(email: string | number): Promise<void> {
     try {
       // Get none active user (not banned)
       const user = await this.getUserBy(email, false, false);
@@ -124,12 +142,14 @@ export class UserService {
       await this.userModel.update(user.id, { banned: new Date() });
       return;
     } catch(error) {
-      this.logError("activateUser", error);
+      this.logError("banUser", error);
       throw(error);
     }
   }
 
-  public async unbanUser(email: string): Promise<void> {
+  public async unbanUser(email: string): Promise<void>;
+  public async unbanUser(id: number): Promise<void>;
+  public async unbanUser(email: string | number): Promise<void> {
     try {
       // Get none active user (not banned)
       const user = await this.getUserBy(email, false, false);
@@ -137,8 +157,18 @@ export class UserService {
       await this.userModel.update(user.id, { banned: null });
       return;
     } catch(error) {
-      this.logError("activateUser", error);
+      this.logError("unbanUser", error);
       throw(error);
+    }
+  }
+
+  public async resetPassword(id: number, password: string): Promise<void> {
+    try {
+      await this.userModel.update(id, { password });
+      return;
+    } catch(error) {
+      this.logError("resetPassword", error);
+      throw error;
     }
   }
 

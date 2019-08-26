@@ -13,7 +13,6 @@ export type tokenData<T> = { payload: T, issuedAt: number, expiresAt: number };
 
 export class JWTService {
   public constructor (
-    private readonly key: string = envService.get("TOKEN", Math.random().toString()),
     private readonly promise: typeof Promise = Promise,
     private readonly errorModule: typeof Error = Error,
     private readonly jsonwebtokenModule: typeof jsonwebtoken = jsonwebtoken,
@@ -21,44 +20,32 @@ export class JWTService {
     private readonly log: LogModule = new LogModule("JWTService"),
   ) { }
 
-  public sign(payload: any, { key, expiresIn }: { key?: string, expiresIn?: string } = { key: this.key, expiresIn: "7 days" }): string {
-    const token = this.jsonwebtokenModule.sign({ payload }, key || this.key, { expiresIn });
+  public sign<T>(payload: T, key: string, expiresIn: string): string {
+    const token = this.jsonwebtokenModule.sign({ payload }, key, { expiresIn });
     if (typeof token !== "string") { throw new this.errorModule("Unable to sign"); }
     return token;
   }
-  public decode<T>(token: string, key: string = this.key): Promise<tokenData<T>> {
-    return new this.promise((resolve, reject) => {
-      try {
-        const decodedToken: string | rawTokenData<T> = this.jsonwebtokenModule.verify(token, key) as string | rawTokenData<T>;
-        if (typeof decodedToken !== "object") {
-          const error = new this.errorModule("Token did'n resolve to an object. Possibly wrong key") ;
-          this.log.error("Error while decoding token");
-          reject(error);
-        } else {
-          resolve({
-            payload: decodedToken.payload,
-            issuedAt: decodedToken.iat,
-            expiresAt: decodedToken.exp
-          });
-        }
-      } catch (error) {
-        this.log.error("Error while decoding token", error);
-        reject(error);
-      }
-    });
-  }
-  public async verify(token: string, key: string = this.key): Promise<boolean> {
-    return !!this.decode(token, key);
-  }
-
-  public async isBanned(token: string, key: string = this.key): Promise<boolean> {
+  public async decode<T>(token: string, key: string): Promise<tokenData<T>> {
     try {
-      const bannedToken = await this.bannedTokenModel.find({ where: { token }});
-      return bannedToken !== undefined;
-    } catch(error) {
-      this.log.error({ title: "isBanned", message: "Something went wrong" }, error);
+      const decodedToken: string | rawTokenData<T> = this.jsonwebtokenModule.verify(token, key) as string | rawTokenData<T>;
+      if (typeof decodedToken !== "object") {
+        const error = new this.errorModule("Token did'n resolve to an object. Possibly wrong key") ;
+        this.log.error("Error while decoding token");
+        throw error;
+      } else {
+        return {
+          payload: decodedToken.payload,
+          issuedAt: decodedToken.iat,
+          expiresAt: decodedToken.exp
+        };
+      }
+    } catch (error) {
+      this.log.error("Error while decoding token", error);
       throw error;
     }
+  }
+  public async verify(token: string, key: string): Promise<boolean> {
+    return !!this.decode(token, key);
   }
 }
 

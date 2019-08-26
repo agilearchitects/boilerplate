@@ -2,6 +2,12 @@
 import * as fs from "fs";
 
 export interface IConfig {
+  auth: {
+    loginExpire: string,
+    rememberExpire: string,
+    activationExpire: string,
+    resetPasswordExpire: string
+  };
   email: {
     defaultFrom: string,
   };

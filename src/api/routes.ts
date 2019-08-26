@@ -22,13 +22,24 @@ routerService.group(router, "/auth", [], (router: Router) => {
     authController.login
   );
   router.post("/register",
-    middlewareService.reCaptchaToken,
-    authController.register
+    middlewareService.reCaptchaToken, // Protect with recaptcha
+    authController.register // Register new account
+  );
+  router.post("/request-reset-password",
+    middlewareService.reCaptchaToken, // Protect with recaptcha
+    authController.requestPasswordReset // Initiate a password reset (send email with reset link)
+  );
+  router.post("/reset-password",
+    middlewareService.checkTokenBan, // Check that reset token is not banned
+    authController.passwordReset // Call to reset password
   );
   return router;
 });
 
 // Group all authenticated requests
-routerService.group(router, "", [middlewareService.isAuth], (router: Router) => {
+routerService.group(router, "", [
+  middlewareService.checkTokenBan,
+  middlewareService.isAuth
+], (router: Router) => {
   return router;
 });

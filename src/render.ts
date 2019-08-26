@@ -78,8 +78,12 @@ yargs.command<{}>("generate <type> <name> [values...]", "Generate project file f
         out[split[0]] = split[1];
         return out;
       }, configs);
-      configs["KEY"] = randomString(10);
       configs["TOKEN"] = randomString(40);
+      configs["AUTH_KEY"] = randomString(10);
+      configs["REFRESH_KEY"] = randomString(10);
+      configs["ACTIVATION_KEY"] = randomString(10);
+      configs["RESET_KEY"] = randomString(10);
+
 
       fs.writeFileSync(ENV_PATH, Object.keys(configs).map((key: string) => `${key}=${configs[key]}`).join("\n"), "utf8");
     } else if(fs.existsSync(ENV_PATH)) {
