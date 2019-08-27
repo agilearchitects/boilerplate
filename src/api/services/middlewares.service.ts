@@ -78,14 +78,14 @@ export class MiddlewareService {
   public checkTokenBan(request: IRequest<{ token: string }, any, { token: string }>, response: Response, next: NextFunction) {
     const token: string = request.method === "GET" ? request.query.token : request.body.token;
     this.authService.isTokenBanned(token).then((isBanned: boolean) => {
-      if(isBanned) {
+      if(!isBanned) {
         next();
       } else {
         response.sendStatus(403);
       }
     }).catch(() => {
       this.insertLog("checkTokenBan", "Failed to check token ban", request.headers);
-      response.sendStatus(500);
+      response.sendStatus(403);
     });
   }
 

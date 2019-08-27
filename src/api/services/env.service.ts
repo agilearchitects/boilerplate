@@ -25,7 +25,10 @@ export class EnvService {
    * @return formated envs
    */
   private readData(path: string): IEnv {
-    return JSON.parse((this.fsModule.readFileSync(path, { encoding: "utf8", flag: "a+"}) as string));
+    return this.fsModule.readFileSync(path, { encoding: "utf8", flag: "a+"}).split("\n").reduce((previousValue: string, currentValue: string) => {
+      const split = currentValue.split("=");
+      return Object.assign(previousValue, { [split[0]]: split[1] });
+    }, {});
   }
 
   public get(name: string, defaultValue: string): string {

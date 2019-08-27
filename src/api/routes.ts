@@ -1,9 +1,16 @@
-import { NextFunction, Request, Response, Router } from "express";
-import { UserDTO } from "../dto/user.dto";
-import { authController } from "./controllers/auth.controller";
+// Libs
+import { Request, Response, Router } from "express";
+
+// Types
 import { dictionary } from "./server";
+
+// Services
 import { middlewareService } from "./services/middlewares.service";
-import { routerService } from "./services/router.service";
+
+// Controllers
+import { authController } from "./controllers/auth.controller";
+
+import "./modules/router.module";
 
 export interface IResponse<T> extends Response {
   locals: T;
@@ -15,9 +22,9 @@ export interface IRequest<BODY = any, PARAMS extends dictionary<string> = any, Q
   query: QUERY;
 }
 
-const router = Router();
+export const router = Router();
 
-routerService.group(router, "/auth", [], (router: Router) => {
+router.group("/auth", [], (router: Router) => {
   router.post("/login",
     authController.login
   );
@@ -33,11 +40,10 @@ routerService.group(router, "/auth", [], (router: Router) => {
     middlewareService.checkTokenBan, // Check that reset token is not banned
     authController.passwordReset // Call to reset password
   );
-  return router;
 });
 
 // Group all authenticated requests
-routerService.group(router, "", [
+router.group("", [
   middlewareService.checkTokenBan,
   middlewareService.isAuth
 ], (router: Router) => {
