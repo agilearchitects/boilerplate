@@ -14,7 +14,7 @@
       "mysql": "^2.14.1",
       "reflect-metadata": "^0.1.10",
       "simplyserveme": "^4.3.4",
-      "typeorm": "0.2.18",
+      "typeorm": "0.2.25",
       "winston": "^3.2.1",
       "yargs": "^14.0.0"
    },
