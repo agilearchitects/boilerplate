@@ -10,7 +10,7 @@
       "jsonwebtoken": "^8.5.1",
       "logform": "^2.1.2",
       "mailgun-js": "^0.22.0",
-      "moment": "^2.24.0",
+      "moment": "^2.29.2",
       "mysql": "^2.14.1",
       "reflect-metadata": "^0.1.10",
       "simplyserveme": "^4.3.4",
